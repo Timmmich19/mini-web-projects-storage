@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Effect</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <script>
+        // Parameters
+        const timeOfanimation = 10000;
+        const timeOfPause = 4000
+        const Intervals = true;
+        const fadeOut = 0.04
+        const fadeIn = 0.05
+        const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
+        const chanseOfspawn = 0.01
+        const chanseOfdeasapear = 0.02
+        const fadingSpeed = 0.1
+        const speedOfFall = 60
+
+        const canvas = document.getElementById('matrix');
+        const context = canvas.getContext('2d');
+        let pause = false;
+        let alpha = 1;
+        let fillAlpha = fadingSpeed
+        let col = 0
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = []
+        for (let i = 0; i < Math.floor(columns); i++) {
+            drops.push([])
+        }
+        function draw() {
+            // if (pause) {
+            //     fillAlpha += fadeOut;
+            //     if (alpha >= 0) {alpha -= fadeOut * 2}
+            // } else {
+            //     if (alpha <= 1) {alpha += fadeIn };
+            //     fillAlpha = fadingSpeed
+            //     }
+            
+            context.fillStyle = `rgba(0, 0, 0, ${fillAlpha})`;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = `rgba(${colors[col]}, ${alpha})`;
+            context.font = `${fontSize}px monospace`;
+            for (let i = 0; i < drops.length; i++) {
+                for (let k in drops[i]) {
+                    const text = Math.random() > 0.5 ? '0' : '1';
+                    context.fillText(text, i * fontSize, drops[i][k] * fontSize);
+                    if (drops[i][k] * fontSize > canvas.height || Math.random() <= chanseOfdeasapear) {
+                        drops[i].pop();
+                    } 
+                    drops[i][k]++;
+                }
+                if (!pause) {
+                if (Math.random() <= chanseOfspawn) {
+                    drops[i].splice(0, 0, 0)
+                }
+            }
+        }
+        }
+        function setPause(p) {
+            p ? setTimeout(() => {pause = !pause; setPause(false)}, timeOfanimation) : setTimeout(() => {pause = !pause; setPause(true) }, timeOfPause)
+        }
+        setInterval(draw, speedOfFall);
+        setInterval(() => {col = (col + 1) % 3}, timeOfanimation + timeOfPause)
+        if (Intervals) {
+            setPause(true)
+        }
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+
+    </script>
+</body>
+</html>
