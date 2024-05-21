@@ -19,22 +19,21 @@
     <canvas id="matrix"></canvas>
     <script>
         // Parameters
-        const timeOfanimation = 10000;
+        const timeOfanimation = 3000;
         const timeOfPause = 4000
         const Intervals = true;
         const fadeOut = 0.04
         const fadeIn = 0.05
         const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
-        const chanseOfspawn = 0.01
+        const chanseOfspawn = 0.02
         const chanseOfdeasapear = 0.02
-        const fadingSpeed = 0.1
-        const speedOfFall = 60
+        const fadingSpeed = 0.01
+        const speedOfFall = 33
 
         const canvas = document.getElementById('matrix');
         const context = canvas.getContext('2d');
         let pause = false;
         let alpha = 1;
-        let fillAlpha = fadingSpeed
         let col = 0
 
         canvas.width = window.innerWidth;
@@ -47,15 +46,7 @@
             drops.push([])
         }
         function draw() {
-            // if (pause) {
-            //     fillAlpha += fadeOut;
-            //     if (alpha >= 0) {alpha -= fadeOut * 2}
-            // } else {
-            //     if (alpha <= 1) {alpha += fadeIn };
-            //     fillAlpha = fadingSpeed
-            //     }
-            
-            context.fillStyle = `rgba(0, 0, 0, ${fillAlpha})`;
+            context.fillStyle = `rgba(0, 0, 0, ${fadingSpeed})`;
             context.fillRect(0, 0, canvas.width, canvas.height);
 
             context.fillStyle = `rgba(${colors[col]}, ${alpha})`;
