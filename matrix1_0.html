@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Matrix 1.0</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                background-color: black;
+            }
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="matrix"></canvas>
+        <script>
+            let mouseMoveTimeout
+            const canvas = document.getElementById('matrix');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            const drops = []
+            let alpha = 1
+            const colors = '50, 255, 50'
+            let pause = false;
+            const pictLayout = []
+
+            for (let i = 0; i < Math.floor(columns); i++) {
+                drops.push([])
+                pictLayout.push([])
+            }
+            let picture = JSON.parse(JSON.stringify(pictLayout));
+            function draw() {
+                context.fillStyle = `rgba(0, 0, 0, 0.1)`;
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.fillStyle = `rgb(${colors})`;
+                context.font = `${fontSize}px monospace`;
+                    
+                for (let i = 0; i < drops.length; i++) {
+                    for (let k in drops[i]) {
+                        const text = Math.random() > 0.5 ? '0' : '1';
+                        context.fillText(text, i * fontSize, drops[i][k] * fontSize);
+                    if (drops[i][k] * fontSize > canvas.height || Math.random() <= 0.01) {
+                        drops[i].pop();
+                    } 
+                    drops[i][k]++;
+                    }
+                    if (!pause) {
+                        if (Math.random() <= 0.03) {
+                            drops[i].splice(0, 0, 0)
+                        }
+                    }
+                }
+            }
+            function drawImage(){
+                context.fillStyle = `rgba(${colors}, 0.5)`;
+                context.font = `${fontSize}px monospace`;
+                for (let i = 0; i < picture.length; i++) {
+                    for (let k in picture[i]) {
+                        const text = Math.random() > 0.5 ? '0' : '1';
+                        context.fillText(text, i * fontSize, picture[i][k] * fontSize);
+                    }
+                }
+            }
+
+            function handleMouseMove(event) {
+                pause = true;
+                const x = Math.floor(event.clientX / fontSize)
+                const y = Math.floor(event.clientY / fontSize)
+                drops[x].splice(0, 0, y)
+                    picture[x].push(y);
+                    picture[x].push(y + 1);
+                    picture[x + 1].push(y);
+                    picture[x + 1].push(y + 1);
+                clearTimeout(mouseMoveTimeout);
+                mouseMoveTimeout = setTimeout(() => {
+                    pause = false;
+                    picture = JSON.parse(JSON.stringify(pictLayout));
+                }, 3000);
+            }
+            document.addEventListener('mousemove', handleMouseMove);
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            setInterval(draw, 66);
+            setInterval(drawImage, 1000);
+        </script>
+    </body>
+</html>
