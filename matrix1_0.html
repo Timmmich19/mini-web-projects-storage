@@ -28,19 +28,30 @@
             const fontSize = 16;
             const columns = canvas.width / fontSize;
             const drops = []
-            let alpha = 1
-            const colors = '50, 255, 50'
-            let pause = false;
+            const track = []
+            let picture = []
+            let mDown = false
             const pictLayout = []
+            const colors = '50, 255, 50'
+            const trackColors = '50, 255, 50'
 
             for (let i = 0; i < Math.floor(columns); i++) {
                 drops.push([])
-                pictLayout.push([])
+                track.push([])
+                picture.push([])
             }
-            let picture = JSON.parse(JSON.stringify(pictLayout));
-            function draw() {
+            function clearPicture() {
+                picture = []
+                for (let i = 0; i < Math.floor(columns); i++) {
+                picture.push([])
+            }
+            }
+
+            function fade() {
                 context.fillStyle = `rgba(0, 0, 0, 0.1)`;
                 context.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            function draw() {
                 context.fillStyle = `rgb(${colors})`;
                 context.font = `${fontSize}px monospace`;
                     
@@ -53,15 +64,53 @@
                     } 
                     drops[i][k]++;
                     }
-                    if (!pause) {
-                        if (Math.random() <= 0.03) {
-                            drops[i].splice(0, 0, 0)
-                        }
+                    if (Math.random() <= 0.03) {
+                        drops[i].splice(0, 0, 0)
                     }
                 }
             }
+            function drawTrack(){
+                context.fillStyle = `rgb(${trackColors})`;
+                context.font = `${fontSize}px monospace`;
+
+                for (let i = 0; i < track.length; i++) {
+                    for (let k in track[i]) {
+                        const text = Math.random() > 0.5 ? '0' : '1';
+                        context.fillText(text, i * fontSize, track[i][k] * fontSize);
+                    if (track[i][k] * fontSize > canvas.height || Math.random() <= 0.01) {
+                        track[i].pop();
+                    } 
+                    track[i][k]++;
+                    }
+            }
+        }
+
+            function handleMouseMove(event) {
+                const x = Math.floor(event.clientX / fontSize)
+                const y = Math.floor(event.clientY / fontSize)
+                track[x].splice(0, 0, y)
+                if (mDown) {
+                    picture[x].push(y);
+                picture[x].push(y + 1);
+                picture[x + 1].push(y);
+                picture[x + 1].push(y + 1);
+                }
+            }
+
+            function mouseDown(event) {
+                mDown = true
+            }
+
+            function mouseUp(event) {
+                mDown = false
+                clearTimeout(mouseMoveTimeout);
+                mouseMoveTimeout = setTimeout(() => {
+                    clearPicture();
+                }, 5000);
+            }
+
             function drawImage(){
-                context.fillStyle = `rgba(${colors}, 0.5)`;
+                context.fillStyle = `rgb(${trackColors})`;
                 context.font = `${fontSize}px monospace`;
                 for (let i = 0; i < picture.length; i++) {
                     for (let k in picture[i]) {
@@ -71,28 +120,15 @@
                 }
             }
 
-            function handleMouseMove(event) {
-                pause = true;
-                const x = Math.floor(event.clientX / fontSize)
-                const y = Math.floor(event.clientY / fontSize)
-                drops[x].splice(0, 0, y)
-                    picture[x].push(y);
-                    picture[x].push(y + 1);
-                    picture[x + 1].push(y);
-                    picture[x + 1].push(y + 1);
-                clearTimeout(mouseMoveTimeout);
-                mouseMoveTimeout = setTimeout(() => {
-                    pause = false;
-                    picture = JSON.parse(JSON.stringify(pictLayout));
-                }, 3000);
-            }
             document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mousedown', mouseDown);
+            document.addEventListener('mouseup', mouseUp);
 
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             });
-            setInterval(draw, 66);
+            setInterval(() => {draw(); drawTrack(); fade() }, 66);
             setInterval(drawImage, 1000);
         </script>
     </body>
