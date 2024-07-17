@@ -32,8 +32,12 @@
             let picture = []
             let mDown = false
             const pictLayout = []
-            const colors = '50, 255, 50'
-            const trackColors = '50, 255, 50'
+            const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
+            const trackColors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
+            const timeOfanimation = 3000;
+            const timeOfPause = 4000
+            let pause = false;
+            let col = 0
 
             for (let i = 0; i < Math.floor(columns); i++) {
                 drops.push([])
@@ -52,7 +56,7 @@
                 context.fillRect(0, 0, canvas.width, canvas.height);
             }
             function draw() {
-                context.fillStyle = `rgb(${colors})`;
+                context.fillStyle = `rgb(${colors[col]})`;
                 context.font = `${fontSize}px monospace`;
                     
                 for (let i = 0; i < drops.length; i++) {
@@ -70,7 +74,7 @@
                 }
             }
             function drawTrack(){
-                context.fillStyle = `rgb(${trackColors})`;
+                context.fillStyle = `rgb(${trackColors[col]})`;
                 context.font = `${fontSize}px monospace`;
 
                 for (let i = 0; i < track.length; i++) {
@@ -110,7 +114,7 @@
             }
 
             function drawImage(){
-                context.fillStyle = `rgb(${trackColors})`;
+                context.fillStyle = `rgb(${trackColors[col]})`;
                 context.font = `${fontSize}px monospace`;
                 for (let i = 0; i < picture.length; i++) {
                     for (let k in picture[i]) {
@@ -130,6 +134,14 @@
             });
             setInterval(() => {draw(); drawTrack(); fade() }, 66);
             setInterval(drawImage, 1000);
+
+            function setPause(p) {
+            p ? setTimeout(() => {pause = !pause; setPause(false)}, timeOfanimation) : setTimeout(() => {pause = !pause; setPause(true) }, timeOfPause)
+            }
+            setInterval(() => {col = (col + 1) % 3}, timeOfanimation + timeOfPause)
+            if (Intervals) {
+                setPause(true)
+            }
         </script>
     </body>
 </html>
