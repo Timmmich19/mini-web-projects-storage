@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Effect</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <script>
+        // Parameters
+        const timeInterval = 5000;
+        const Intervals = true;
+        const fadeOut = 0.04
+        const fadeIn = 0.05
+        const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
+        const chanseOfspawn = 0.02
+        const chanseOfdeasapear = 0.02
+        const fadingSpeed = 0.1
+        const speedOfFall = 66
+        const fontSize = 16;
+        const IntervalOfImageUpdate = 1000
+
+        let mode = false;
+        const canvas = document.getElementById('matrix');
+        const context = canvas.getContext('2d');
+        let alpha = 1;
+        let col = 0
+        let drawInterval
+        let switchInterval
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const columns = canvas.width / fontSize;
+        const drops = []
+        const image = []
+        for (let i = 0; i < Math.floor(columns); i++) {
+            drops.push([])
+        }
+
+        for (let i = 0; i < Math.floor(columns); i++) {
+            image.push([13, 12, 11])
+        }
+
+
+        function fading() {
+            context.fillStyle = `rgba(0, 0, 0, ${fadingSpeed})`;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawFall() {
+            context.fillStyle = `rgba(${colors[col]}, ${alpha})`;
+            context.font = `${fontSize}px monospace`;
+            for (let i = 0; i < drops.length; i++) {
+                for (let k in drops[i]) {
+                    const text = Math.random() > 0.5 ? '0' : '1';
+                    context.fillText(text, i * fontSize, drops[i][k] * fontSize);
+                    if (drops[i][k] * fontSize > canvas.height || Math.random() <= chanseOfdeasapear) {
+                        drops[i].pop();
+                    } 
+                    drops[i][k]++;
+                }
+                if (!mode) {
+                if (Math.random() <= chanseOfspawn) {
+                    drops[i].splice(0, 0, 0)
+                }
+            }
+            }
+        }
+
+        function drawImage() {
+            context.fillStyle = `rgba(${colors[col]}, ${alpha})`;
+            context.font = `${fontSize}px monospace`;
+            for (let i = 0; i < image.length; i++) {
+                for (let k in image[i]) {
+                    const text = Math.random() > 0.5 ? '0' : '1';
+                    context.fillText(text, i * fontSize, image[i][k] * fontSize);
+                }
+            }
+        }
+        
+        function switchMode() {
+            if (!mode) {
+                drawInterval = setInterval(() => {drawImage()}, IntervalOfImageUpdate)
+            } else {
+                clearInterval(drawInterval);
+                col = (col + 1) % colors.length;
+            }
+            mode = !mode
+        }
+
+        setInterval(() => {drawFall(), fading()}, speedOfFall);
+
+        if (Intervals) {
+            setInterval(() => {switchMode()}, timeInterval);
+        }
+
+
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+
+    </script>
+</body>
+</html>
