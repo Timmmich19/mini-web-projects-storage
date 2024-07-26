@@ -18,7 +18,25 @@
 <body>
     <canvas id="matrix"></canvas>
     <canvas id="text"></canvas>
-    <script>
+    <script>   
+        // Parameters
+        const textSize = 40
+        const timeInterval = 5000;
+        const intervals = false;
+        const text = "☼гегагедигедагедаго"
+        const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
+        const chanseOfspawn = 0.02
+        const chanseOfdeasapear = 0.02
+        const fadingSpeed = 0.1
+        const speedOfFall = 66
+        const fontSize = 6;
+        const IntervalOfImageUpdate = 500
+        
+        let fallingMode
+        let imageMode
+        let alpha = 1;
+        let col = 0
+
         // Инициализация canvas для текста
         const canvasText = document.getElementById('text');
         const ctx = canvasText.getContext('2d');
@@ -27,56 +45,35 @@
         const context = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
-        
-        // Parameters
-        const textSize = 40
-        const text = "пизда"
-        const timeInterval = 5000;
-        const Intervals = true;
-        const fadeOut = 0.04
-        const fadeIn = 0.05
-        const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
-        const chanseOfspawn = 0.02
-        const chanseOfdeasapear = 0.02
-        const fadingSpeed = 0.1
-        const speedOfFall = 66
-        const fontSize = 16;
-        const IntervalOfImageUpdate = 1000
-        
-        let mode = false;
-        let alpha = 1;
-        let col = 0
         const columns = canvas.width / fontSize;
+        const rows = canvas.height / fontSize
+        canvasText.width = columns;
+        canvasText.height = rows;
         
         const drops = []
-        for (let i = 0; i < Math.floor(columns); i++) {
+        for (let i = 0; i < Math.ceil(columns); i++) {
             drops.push([])
         }
 
         // Отрисовка текста (текст не виден) и сохранение данных о нём в data.
         ctx.font = `${textSize}px Arial`;
-        ctx.fillText(text, 10, 30);
+        ctx.fillText(text, 0, 40);
         const imageData = ctx.getImageData(0, 0, window.innerWidth, window.innerHeight);
         const data = imageData.data;
 
         // создание image, где будут храниться координаты, и запись координат из data.
         const image = []
 
-        for (let i = 0; i < Math.floor(columns); i++) {
-            image.push([])
-        }
 
         for (let y = 0; y < canvas.height; y++) {
             for (let x = 0; x < canvas.width; x++) {
                 const index = (y * canvas.width + x) * 4;
                 const alpha = data[index + 3];
                 if (alpha > 0) {
-                    image[x].push(y);
+                    image.push([x, y]);
                 }
             }
         }
-        console.log(image);
 
         // функция затухания
         function fading() {
@@ -97,39 +94,49 @@
                     } 
                     drops[i][k]++;
                 }
-                if (!mode) {
-                if (Math.random() <= chanseOfspawn) {
-                    drops[i].splice(0, 0, 0)
-                }
+                if (fallingMode) {
+                    if (Math.random() <= chanseOfspawn) {
+                        drops[i].splice(0, 0, 0)
+                    }
             }
             }
         }
         // отрисовка слова
         function drawImage() {
+            if (imageMode) {
             context.fillStyle = `rgba(${colors[col]}, ${alpha})`;
             context.font = `${fontSize}px monospace`;
-            for (let i = 0; i < image.length; i++) {
-                for (let k in image[i]) {
+            image.forEach( (item) => {
                     const text = Math.random() > 0.5 ? '0' : '1';
-                    context.fillText(text, i * fontSize, image[i][k] * fontSize);
-                }
+                    context.fillText(text, item[0] * fontSize, item[1] * fontSize);
+                })
             }
         }
         
         function switchMode() {
-            if (!mode) {
-                drawInterval = setInterval(() => {drawImage()}, IntervalOfImageUpdate)
-            } else {
-                clearInterval(drawInterval);
+            fallingMode = !fallingMode
+            imageMode = !imageMode
+            if (fallingMode) {
                 col = (col + 1) % colors.length;
             }
-            mode = !mode
+        }
+        
+        function nextColor() {
+            col = (col + 1) % colors.length;
         }
 
-        setInterval(() => {drawFall(), fading()}, speedOfFall);
-
-        if (Intervals) {
-            setInterval(() => {switchMode()}, timeInterval);
+        if (intervals) {
+            fallingMode = true
+            imageMode = false
+            setInterval(() => {drawFall(), fading()}, speedOfFall);
+            setInterval(() => {drawImage()}, IntervalOfImageUpdate)
+            setInterval(() => {switchMode()}, timeInterval / 2);
+        } else {
+            fallingMode = true
+            imageMode = true
+            setInterval(() => {drawFall(), fading()}, speedOfFall);
+            setInterval(() => {nextColor()}, timeInterval);
+            setInterval(() => {drawImage()}, IntervalOfImageUpdate)
         }
 
 
