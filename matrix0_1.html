@@ -21,16 +21,16 @@
     <script>   
         // Parameters
         const textSize = 40
-        const timeInterval = 5000;
+        const timeInterval = 10000;
         const intervals = false;
-        const text = "☼гегагедигедагедаго"
+        const text = "timmmich"
         const colors = ['50, 255, 50', '255, 50, 50', '0, 200, 255']
         const chanseOfspawn = 0.02
         const chanseOfdeasapear = 0.02
         const fadingSpeed = 0.1
         const speedOfFall = 66
-        const fontSize = 6;
-        const IntervalOfImageUpdate = 500
+        const fontSize = 10;
+        const IntervalOfImageUpdate = 1000
         
         let fallingMode
         let imageMode
@@ -45,32 +45,37 @@
         const context = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        const columns = canvas.width / fontSize;
-        const rows = canvas.height / fontSize
+        const columns = Math.ceil(canvas.width / fontSize);
+        const rows = Math.ceil(canvas.height / fontSize)
+
         canvasText.width = columns;
         canvasText.height = rows;
         
         const drops = []
-        for (let i = 0; i < Math.ceil(columns); i++) {
+        for (let i = 0; i < columns; i++) {
             drops.push([])
         }
 
         // Отрисовка текста (текст не виден) и сохранение данных о нём в data.
-        ctx.font = `${textSize}px Arial`;
-        ctx.fillText(text, 0, 40);
+        ctx.font = `${textSize}px Lucida Console`;
+        ctx.fillText(text, (columns / 2) - (text.length * ((textSize / 2)) + (2 * text.length)) / 2, (rows/2) + (textSize / 4));
+        console.log(columns);
+        console.log((text.length * ((textSize / 2)) + (2 * text.length)))
         const imageData = ctx.getImageData(0, 0, window.innerWidth, window.innerHeight);
         const data = imageData.data;
 
         // создание image, где будут храниться координаты, и запись координат из data.
         const image = []
 
-
-        for (let y = 0; y < canvas.height; y++) {
-            for (let x = 0; x < canvas.width; x++) {
+        for (let i = 0; i < columns; i++) {
+            image.push([])
+        }
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < columns; x++) {
                 const index = (y * canvas.width + x) * 4;
                 const alpha = data[index + 3];
                 if (alpha > 0) {
-                    image.push([x, y]);
+                    image[x].push(y);
                 }
             }
         }
@@ -106,13 +111,14 @@
             if (imageMode) {
             context.fillStyle = `rgba(${colors[col]}, ${alpha})`;
             context.font = `${fontSize}px monospace`;
-            image.forEach( (item) => {
+            for (let i = 0; i < image.length; i++) {
+                for (let k in image[i]) {
                     const text = Math.random() > 0.5 ? '0' : '1';
-                    context.fillText(text, item[0] * fontSize, item[1] * fontSize);
-                })
+                    context.fillText(text, i * fontSize, image[i][k] * fontSize);
+                }
             }
         }
-        
+    }
         function switchMode() {
             fallingMode = !fallingMode
             imageMode = !imageMode
