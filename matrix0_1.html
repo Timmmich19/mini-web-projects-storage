@@ -18,7 +18,7 @@
 <body>
     <canvas id="matrix"></canvas>
     <canvas id="text"></canvas>
-    <script>   
+    <script>
         // Parameters
         const textSize = 40
         const timeInterval = 10000;
@@ -58,9 +58,9 @@
 
         // Отрисовка текста (текст не виден) и сохранение данных о нём в data.
         ctx.font = `${textSize}px Lucida Console`;
-        ctx.fillText(text, (columns / 2) - (text.length * ((textSize / 2)) + (2 * text.length)) / 2, (rows/2) + (textSize / 4));
+        ctx.fillText(text, 0, rows);
         console.log(columns);
-        console.log((text.length * ((textSize / 2)) + (2 * text.length)))
+        console.log(rows)
         const imageData = ctx.getImageData(0, 0, window.innerWidth, window.innerHeight);
         const data = imageData.data;
 
@@ -70,15 +70,27 @@
         for (let i = 0; i < columns; i++) {
             image.push([])
         }
+
+        let topp = 0
+        let bottom = Infinity
+        let left = Infinity
+        let right = 0
         for (let y = 0; y < rows; y++) {
             for (let x = 0; x < columns; x++) {
                 const index = (y * canvas.width + x) * 4;
                 const alpha = data[index + 3];
                 if (alpha > 0) {
+                    if (topp < y) {topp = y}
+                    if (bottom > y) {bottom = y}
+                    if (left > x) {left = x}
+                    if (right < x) {right = x}
                     image[x].push(y);
                 }
             }
         }
+        console.log(topp, bottom, left, right);
+        const xCorrection = (columns - (right + left)) / 2;
+        const yCorrection = (rows - (topp - bottom)) / 2;
 
         // функция затухания
         function fading() {
@@ -114,7 +126,7 @@
             for (let i = 0; i < image.length; i++) {
                 for (let k in image[i]) {
                     const text = Math.random() > 0.5 ? '0' : '1';
-                    context.fillText(text, i * fontSize, image[i][k] * fontSize);
+                    context.fillText(text, (i + xCorrection) * fontSize, (image[i][k] - yCorrection) * fontSize);
                 }
             }
         }
